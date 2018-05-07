@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en-US">
+	<head>
+		{%include "/_Includes/head/inner.inc"-%}
+        <link rel="stylesheet" type="text/css" href="/_assets/css/jquery.fancybox.css?v=2.1.5" media="screen" />
+	</head>
+	<body class="event-detail">
+		<div id="loading">
+			{%include "/_Includes/template/loader.inc"-%}
+		</div>
+		<div class="site">
+			<header class="noo-header header-1" id="noo-header">
+				{module_contentholder name="_Template - Header"}
+			</header>
+			{tag_pagecontent}			
+			<div class="footer">
+				<div class="footer-top">
+					<div class="container">
+						<div class="widget mailchimp-widget">
+							{module_contentholder name="_Template - Newsletter"}
+						</div>
+					</div>
+				</div>
+				<div class="colophon wigetized hidden-print">
+					<div class="container-boxed max">
+						<div class="row">
+							{module_contentholder name="_Template - Footer"}
+						</div>  
+					</div>  
+				</div>  
+				<div class="footer-bottom">
+					{%include "/_Includes/template/footer.inc"-%}
+				</div>
+			</div> 
+		</div>
+		{%include "/_Includes/footer/library/events.inc"-%}
+        <script type="text/javascript">
+			var eft = 0;
+			var cc = 0;			
+			{% if bookingoverall_2.webapp_data.items[0].EFT -%}
+				eft = {{bookingoverall_2.webapp_data.items[0].EFT}};
+			{% endif -%}
+			{% if bookingoverall_2.webapp_data.items[0].['Credit Card'] -%}
+				cc = {{bookingoverall_2.webapp_data.items[0].['Credit Card']}};
+			{% endif -%}
+			var pay_amnt = 0;
+			var eft_dec = eft / 100;
+			var eft_amnt = 0;
+			var cc_dec = cc / 100;
+			var cc_amnt = 0;
+			function getPayMethod(){
+				cc_amnt = 0;
+				eft_amnt = 0;
+				jQuery(".add-amnt").html("");
+				if(jQuery("input[name='PaymentMethodType']:checked").val() == 1){
+					console.log("Credit card");
+
+					if($.isNumeric(cc) && cc > 0){
+						cc_amnt = getPercentage(jQuery("input[name='amout_option']:checked").val(),cc);
+						jQuery(".add-amnt").prepend('<div id="cc-amount" class="sub-total">Credit Card: <span>' + cc_amnt + '</span></div>');
+					}
+					getTotal();
+				}
+				if(jQuery("input[name='PaymentMethodType']:checked").val() == 7){
+					console.log("Paypal");
+					var amtopt = parseFloat(jQuery('input[name="amout_option"]:checked').val());
+    	    		Tamt = (amtopt * 0.026) + amtopt;
+    				jQuery("#Amount").val(Tamt);
+
+				}
+				if(jQuery("input[name='PaymentMethodType']:checked").val() == 3){
+					console.log("EFT");
+					if($.isNumeric(eft) && eft > 0){
+						eft_amnt = getPercentage(jQuery("input[name='amout_option']:checked").val(),eft);
+						jQuery(".add-amnt").prepend('<div id="eft-amount" class="sub-total">EFT: <span>' + eft_amnt + '</span></div>');
+					}
+					getTotal();
+				}			
+			}
+
+
+			
+			function getPercentage($amnt,$prcnt){
+				var $prcnt_dec = $prcnt / 100;
+				return $prcnt_dec * $amnt;
+			}
+			function getTotal(){
+				jQuery("#Amount").val(parseFloat(jQuery("input[name='amout_option']:checked").val()) + parseFloat(eft_amnt) + parseFloat(cc_amnt));
+			}
+			
+			jQuery("input[name='PaymentMethodType']").change(function(){
+				console.log(jQuery(this).val() + " is num:" + $.isNumeric(jQuery(this).val()));
+				document.getElementById("CAT_Custom_20100738").selectedIndex = "0";
+				
+				getPayMethod();
+			});
+			jQuery("input[name='amout_option']").change(function(){
+				document.getElementById("CAT_Custom_20100738").selectedIndex = "0";
+				
+				getPayMethod();
+			});
+                        
+			jQuery(document).ready(function(){
+				getPayMethod();
+			});
+
+            
+jQuery("#CAT_Custom_20100738").on("change", function(){
+		
+		var amtopt = jQuery('input[name*="amout_option"]:checked').val();
+		var quantity = jQuery('select[name="CAT_Custom_20100738"]').val();;
+		var Tamount;
+		
+		if(jQuery('input[name="PaymentMethodType"]:checked').val() == 7){
+				Tamount = (amtopt * 0.026) + amtopt * quantity;
+				
+		}else{
+			Tamount = amtopt * quantity;
+		}
+		alert(Tamount);	
+		jQuery("#Amount").val(Tamount);
+	
+});
+		</script>
+	</body>
+</html>
